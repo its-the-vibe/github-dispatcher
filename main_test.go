@@ -212,8 +212,6 @@ func TestFindMatchingRule(t *testing.T) {
 }
 
 func TestHandleWebhookMessage(t *testing.T) {
-	// Create a miniredis server for testing
-	// Since we don't have miniredis, we'll just test the JSON parsing
 	rules := []FilterRule{
 		{
 			Repo:     "owner/test-repo",
@@ -276,8 +274,10 @@ func TestHandleWebhookMessage_Integration(t *testing.T) {
 		t.Skip("Redis not available, skipping integration test")
 	}
 
-	// Clean up any existing data
+	// Use a unique queue name for this test to avoid conflicts
 	queueName := "test-pipeline"
+	
+	// Clean up before test
 	rdb.Del(ctx, queueName)
 	defer rdb.Del(ctx, queueName)
 
@@ -302,7 +302,7 @@ func TestHandleWebhookMessage_Integration(t *testing.T) {
 		t.Fatalf("Failed to handle webhook message: %v", err)
 	}
 
-	// Verify the rule was pushed to Redis
+	// Verify the rule was pushed to Redis (FIFO: RPush adds to tail, LPop removes from head)
 	result, err := rdb.LPop(ctx, queueName).Result()
 	if err != nil {
 		t.Fatalf("Failed to pop from Redis queue: %v", err)

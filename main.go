@@ -66,9 +66,9 @@ func loadFilterRules(filePath string) ([]FilterRule, error) {
 }
 
 func findMatchingRule(rules []FilterRule, repo, branch string) *FilterRule {
-	for _, rule := range rules {
-		if rule.Repo == repo && rule.Branch == branch {
-			return &rule
+	for i := range rules {
+		if rules[i].Repo == repo && rules[i].Branch == branch {
+			return &rules[i]
 		}
 	}
 	return nil
