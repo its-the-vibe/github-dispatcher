@@ -11,3 +11,5 @@ services:
       - REDIS_PORT=${REDIS_PORT:-6379}
       - REDIS_CHANNEL=${REDIS_CHANNEL:-github-webhook}
     restart: unless-stopped
+    volumes:
+      - ./config.json:/app/config.json:ro
