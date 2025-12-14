@@ -33,12 +33,24 @@ The service is configured using environment variables:
 | `REDIS_CHANNEL` | Redis pubsub channel to subscribe to | `github-webhooks` |
 | `CONFIG_FILE_PATH` | Path to the filter configuration JSON file | `config.json` |
 | `PIPELINE_QUEUE_NAME` | Redis queue name for pushing matched configurations | `pipeline` |
+| `LOG_LEVEL` | Log level (DEBUG, INFO, WARN, ERROR) | `INFO` |
 
 Copy `.env.example` to `.env` and adjust the values as needed:
 
 ```bash
 cp .env.example .env
 ```
+
+### Log Levels
+
+The `LOG_LEVEL` environment variable controls the verbosity of logging:
+
+- **DEBUG**: Most verbose, shows all messages including webhook payloads and processing details
+- **INFO**: Standard logging, shows startup, configuration, and key operational messages (default)
+- **WARN**: Shows only warnings and errors
+- **ERROR**: Shows only error messages
+
+Setting `LOG_LEVEL=INFO` or higher will reduce log verbosity by suppressing detailed webhook processing messages.
 
 ### Filter Configuration File
 

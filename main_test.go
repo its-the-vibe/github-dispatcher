@@ -16,6 +16,7 @@ func TestLoadConfig_Defaults(t *testing.T) {
 	os.Unsetenv("REDIS_CHANNEL")
 	os.Unsetenv("CONFIG_FILE_PATH")
 	os.Unsetenv("PIPELINE_QUEUE_NAME")
+	os.Unsetenv("LOG_LEVEL")
 
 	config := loadConfig()
 
@@ -38,6 +39,10 @@ func TestLoadConfig_Defaults(t *testing.T) {
 	if config.PipelineQueueName != "pipeline" {
 		t.Errorf("Expected PipelineQueueName to be 'pipeline', got '%s'", config.PipelineQueueName)
 	}
+
+	if config.LogLevel != "INFO" {
+		t.Errorf("Expected LogLevel to be 'INFO', got '%s'", config.LogLevel)
+	}
 }
 
 func TestLoadConfig_CustomValues(t *testing.T) {
@@ -47,6 +52,7 @@ func TestLoadConfig_CustomValues(t *testing.T) {
 	os.Setenv("REDIS_CHANNEL", "custom-channel")
 	os.Setenv("CONFIG_FILE_PATH", "/path/to/config.json")
 	os.Setenv("PIPELINE_QUEUE_NAME", "custom-pipeline")
+	os.Setenv("LOG_LEVEL", "DEBUG")
 
 	config := loadConfig()
 
@@ -70,12 +76,17 @@ func TestLoadConfig_CustomValues(t *testing.T) {
 		t.Errorf("Expected PipelineQueueName to be 'custom-pipeline', got '%s'", config.PipelineQueueName)
 	}
 
+	if config.LogLevel != "DEBUG" {
+		t.Errorf("Expected LogLevel to be 'DEBUG', got '%s'", config.LogLevel)
+	}
+
 	// Clean up
 	os.Unsetenv("REDIS_HOST")
 	os.Unsetenv("REDIS_PORT")
 	os.Unsetenv("REDIS_CHANNEL")
 	os.Unsetenv("CONFIG_FILE_PATH")
 	os.Unsetenv("PIPELINE_QUEUE_NAME")
+	os.Unsetenv("LOG_LEVEL")
 }
 
 func TestGetEnv(t *testing.T) {
@@ -323,5 +334,29 @@ func TestHandleWebhookMessage_Integration(t *testing.T) {
 
 	if len(pushedRule.Commands) != 2 {
 		t.Errorf("Expected 2 commands, got %d", len(pushedRule.Commands))
+	}
+}
+
+func TestParseLogLevel(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected LogLevel
+	}{
+		{"DEBUG", LogLevelDebug},
+		{"INFO", LogLevelInfo},
+		{"WARN", LogLevelWarn},
+		{"WARNING", LogLevelWarn},
+		{"ERROR", LogLevelError},
+		{"invalid", LogLevelInfo}, // default to INFO
+		{"", LogLevelInfo},         // default to INFO
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			result := parseLogLevel(tt.input)
+			if result != tt.expected {
+				t.Errorf("parseLogLevel(%q) = %v, expected %v", tt.input, result, tt.expected)
+			}
+		})
 	}
 }

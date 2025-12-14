@@ -18,7 +18,19 @@ type Config struct {
 	RedisChannel      string
 	ConfigFilePath    string
 	PipelineQueueName string
+	LogLevel          string
 }
+
+type LogLevel int
+
+const (
+	LogLevelDebug LogLevel = iota
+	LogLevelInfo
+	LogLevelWarn
+	LogLevelError
+)
+
+var currentLogLevel LogLevel = LogLevelInfo
 
 type FilterRule struct {
 	Repo     string   `json:"repo"`
@@ -41,6 +53,7 @@ func loadConfig() Config {
 		RedisChannel:      getEnv("REDIS_CHANNEL", "github-webhooks"),
 		ConfigFilePath:    getEnv("CONFIG_FILE_PATH", "config.json"),
 		PipelineQueueName: getEnv("PIPELINE_QUEUE_NAME", "pipeline"),
+		LogLevel:          getEnv("LOG_LEVEL", "INFO"),
 	}
 }
 
@@ -49,6 +62,45 @@ func getEnv(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
+}
+
+func parseLogLevel(level string) LogLevel {
+	switch level {
+	case "DEBUG":
+		return LogLevelDebug
+	case "INFO":
+		return LogLevelInfo
+	case "WARN", "WARNING":
+		return LogLevelWarn
+	case "ERROR":
+		return LogLevelError
+	default:
+		return LogLevelInfo
+	}
+}
+
+func logDebug(format string, v ...interface{}) {
+	if currentLogLevel <= LogLevelDebug {
+		log.Printf("[DEBUG] "+format, v...)
+	}
+}
+
+func logInfo(format string, v ...interface{}) {
+	if currentLogLevel <= LogLevelInfo {
+		log.Printf("[INFO] "+format, v...)
+	}
+}
+
+func logWarn(format string, v ...interface{}) {
+	if currentLogLevel <= LogLevelWarn {
+		log.Printf("[WARN] "+format, v...)
+	}
+}
+
+func logError(format string, v ...interface{}) {
+	if currentLogLevel <= LogLevelError {
+		log.Printf("[ERROR] "+format, v...)
+	}
 }
 
 func loadFilterRules(filePath string) ([]FilterRule, error) {
@@ -80,15 +132,15 @@ func handleWebhookMessage(ctx context.Context, rdb *redis.Client, queueName stri
 		return fmt.Errorf("failed to parse webhook payload: %w", err)
 	}
 
-	log.Printf("Processing push event for repo: %s, ref: %s", event.Repository.FullName, event.Ref)
+	logDebug("Processing push event for repo: %s, ref: %s", event.Repository.FullName, event.Ref)
 
 	rule := findMatchingRule(rules, event.Repository.FullName, event.Ref)
 	if rule == nil {
-		log.Printf("No matching rule found for repo: %s, ref: %s", event.Repository.FullName, event.Ref)
+		logDebug("No matching rule found for repo: %s, ref: %s", event.Repository.FullName, event.Ref)
 		return nil
 	}
 
-	log.Printf("Found matching rule for repo: %s, ref: %s", rule.Repo, rule.Branch)
+	logDebug("Found matching rule for repo: %s, ref: %s", rule.Repo, rule.Branch)
 
 	// Serialize the matched rule to JSON
 	ruleJSON, err := json.Marshal(rule)
@@ -101,23 +153,24 @@ func handleWebhookMessage(ctx context.Context, rdb *redis.Client, queueName stri
 		return fmt.Errorf("failed to push to Redis queue: %w", err)
 	}
 
-	log.Printf("Pushed rule to queue '%s': %s", queueName, string(ruleJSON))
+	logDebug("Pushed rule to queue '%s': %s", queueName, string(ruleJSON))
 	return nil
 }
 
 func main() {
-	log.Println("Starting GitHub Dispatcher Service...")
-
 	config := loadConfig()
-	log.Printf("Configuration: Redis=%s:%s, Channel=%s, ConfigFile=%s, PipelineQueue=%s\n",
-		config.RedisHost, config.RedisPort, config.RedisChannel, config.ConfigFilePath, config.PipelineQueueName)
+	currentLogLevel = parseLogLevel(config.LogLevel)
+	
+	logInfo("Starting GitHub Dispatcher Service...")
+	logInfo("Configuration: Redis=%s:%s, Channel=%s, ConfigFile=%s, PipelineQueue=%s, LogLevel=%s",
+		config.RedisHost, config.RedisPort, config.RedisChannel, config.ConfigFilePath, config.PipelineQueueName, config.LogLevel)
 
 	// Load filter rules
 	rules, err := loadFilterRules(config.ConfigFilePath)
 	if err != nil {
 		log.Fatalf("Failed to load filter rules: %v", err)
 	}
-	log.Printf("Loaded %d filter rule(s)", len(rules))
+	logInfo("Loaded %d filter rule(s)", len(rules))
 
 	// Create Redis client
 	rdb := redis.NewClient(&redis.Options{
@@ -131,14 +184,14 @@ func main() {
 	if err := rdb.Ping(ctx).Err(); err != nil {
 		log.Fatalf("Failed to connect to Redis: %v", err)
 	}
-	log.Println("Successfully connected to Redis")
+	logInfo("Successfully connected to Redis")
 
 	// Subscribe to channel
 	pubsub := rdb.Subscribe(ctx, config.RedisChannel)
 	defer pubsub.Close()
 
-	log.Printf("Subscribed to channel: %s\n", config.RedisChannel)
-	log.Println("Waiting for messages...")
+	logInfo("Subscribed to channel: %s", config.RedisChannel)
+	logInfo("Waiting for messages...")
 
 	// Handle graceful shutdown
 	sigChan := make(chan os.Signal, 1)
@@ -150,12 +203,12 @@ func main() {
 	for {
 		select {
 		case msg := <-ch:
-			log.Printf("Received message from channel '%s':\n%s\n", msg.Channel, msg.Payload)
+			logDebug("Received message from channel '%s':\n%s", msg.Channel, msg.Payload)
 			if err := handleWebhookMessage(ctx, rdb, config.PipelineQueueName, rules, msg.Payload); err != nil {
-				log.Printf("Error handling webhook message: %v", err)
+				logError("Error handling webhook message: %v", err)
 			}
 		case sig := <-sigChan:
-			log.Printf("Received signal: %v. Shutting down gracefully...", sig)
+			logInfo("Received signal: %v. Shutting down gracefully...", sig)
 			return
 		}
 	}
