@@ -1,32 +1,13 @@
 version: '3.8'
 
 services:
-  redis:
-    image: redis:7-alpine
-    container_name: github-dispatcher-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-
   dispatcher:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: github-dispatcher
-    depends_on:
-      redis:
-        condition: service_healthy
+    build: .
+    read_only: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_CHANNEL=github-webhooks
+      - REDIS_HOST=${REDIS_HOST:-host.docker.internal}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_CHANNEL=${REDIS_CHANNEL:-github-webhook}
     restart: unless-stopped
-
-volumes:
-  redis-data:
