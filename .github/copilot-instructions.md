@@ -106,11 +106,6 @@ go test ./... -v
 - Production image should be based on minimal base images
 - Binary is built in build stage and copied to runtime stage
 
-### Docker Compose
-- Includes Redis service for local development
-- Dispatcher service depends on Redis being healthy
-- Use environment variables for configuration
-
 ## Project Structure
 
 ```
