@@ -1,0 +1,14 @@
+[
+  {
+    "repo": "owner/repository-name",
+    "branch": "refs/heads/main",
+    "type": "git-webhook",
+    "commands": ["make build", "make test", "make deploy"]
+  },
+  {
+    "repo": "owner/another-repo",
+    "branch": "refs/heads/develop",
+    "type": "git-webhook",
+    "commands": ["npm install", "npm run build", "npm test"]
+  }
+]
