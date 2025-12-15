@@ -18,9 +18,9 @@ This GitHub Dispatcher service subscribes to a Redis pubsub channel, receives Gi
 
 ## Prerequisites
 
-- Go 1.24 or later
+- Go 1.25 or later
 - Docker and Docker Compose (for containerized deployment)
-- Redis server (provided via Docker Compose)
+- Redis server
 
 ## Configuration
 
@@ -30,7 +30,7 @@ The service is configured using environment variables:
 |----------|-------------|---------|
 | `REDIS_HOST` | Redis server hostname | `localhost` |
 | `REDIS_PORT` | Redis server port | `6379` |
-| `REDIS_CHANNEL` | Redis pubsub channel to subscribe to | `github-webhooks` |
+| `REDIS_CHANNEL` | Redis pubsub channel to subscribe to | `github-webhook-push` |
 | `CONFIG_FILE_PATH` | Path to the filter configuration JSON file | `config.json` |
 | `PIPELINE_QUEUE_NAME` | Redis queue name for pushing matched configurations | `pipeline` |
 | `LOG_LEVEL` | Log level (DEBUG, INFO, WARN, ERROR) | `INFO` |
