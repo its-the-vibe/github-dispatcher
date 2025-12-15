@@ -9,7 +9,7 @@ services:
     environment:
       - REDIS_HOST=${REDIS_HOST:-host.docker.internal}
       - REDIS_PORT=${REDIS_PORT:-6379}
-      - REDIS_CHANNEL=${REDIS_CHANNEL:-github-webhook}
+      - REDIS_CHANNEL=${REDIS_CHANNEL:-github-webhook-push}
     restart: unless-stopped
     volumes:
       - ./config.json:/app/config.json:ro

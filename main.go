@@ -50,7 +50,7 @@ func loadConfig() Config {
 	return Config{
 		RedisHost:         getEnv("REDIS_HOST", "localhost"),
 		RedisPort:         getEnv("REDIS_PORT", "6379"),
-		RedisChannel:      getEnv("REDIS_CHANNEL", "github-webhooks"),
+		RedisChannel:      getEnv("REDIS_CHANNEL", "github-webhook-push"),
 		ConfigFilePath:    getEnv("CONFIG_FILE_PATH", "config.json"),
 		PipelineQueueName: getEnv("PIPELINE_QUEUE_NAME", "pipeline"),
 		LogLevel:          getEnv("LOG_LEVEL", "INFO"),
@@ -160,7 +160,7 @@ func handleWebhookMessage(ctx context.Context, rdb *redis.Client, queueName stri
 func main() {
 	config := loadConfig()
 	currentLogLevel = parseLogLevel(config.LogLevel)
-	
+
 	logInfo("Starting GitHub Dispatcher Service...")
 	logInfo("Configuration: Redis=%s:%s, Channel=%s, ConfigFile=%s, PipelineQueue=%s, LogLevel=%s",
 		config.RedisHost, config.RedisPort, config.RedisChannel, config.ConfigFilePath, config.PipelineQueueName, config.LogLevel)
