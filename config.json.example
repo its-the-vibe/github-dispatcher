@@ -3,12 +3,14 @@
     "repo": "owner/repository-name",
     "branch": "refs/heads/main",
     "type": "git-webhook",
+    "dir": "/home/user/whatever",
     "commands": ["make build", "make test", "make deploy"]
   },
   {
     "repo": "owner/another-repo",
     "branch": "refs/heads/develop",
     "type": "git-webhook",
+    "dir": "/home/user/whatever",
     "commands": ["npm install", "npm run build", "npm test"]
   }
 ]
