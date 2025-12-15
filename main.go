@@ -36,6 +36,7 @@ type FilterRule struct {
 	Repo     string   `json:"repo"`
 	Branch   string   `json:"branch"`
 	Type     string   `json:"type"`
+	Dir      string   `json:"dir"`
 	Commands []string `json:"commands"`
 }
 

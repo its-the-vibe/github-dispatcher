@@ -118,12 +118,14 @@ func TestLoadFilterRules(t *testing.T) {
 			"repo": "owner/repo1",
 			"branch": "refs/heads/main",
 			"type": "git-webhook",
+			"dir": "/home/user/repo1",
 			"commands": ["make build", "make test"]
 		},
 		{
 			"repo": "owner/repo2",
 			"branch": "refs/heads/develop",
 			"type": "git-webhook",
+			"dir": "/home/user/repo2",
 			"commands": ["npm install", "npm test"]
 		}
 	]`
@@ -152,6 +154,14 @@ func TestLoadFilterRules(t *testing.T) {
 
 	if len(rules[0].Commands) != 2 {
 		t.Errorf("Expected 2 commands, got %d", len(rules[0].Commands))
+	}
+
+	if rules[0].Dir != "/home/user/repo1" {
+		t.Errorf("Expected dir '/home/user/repo1', got '%s'", rules[0].Dir)
+	}
+
+	if rules[1].Dir != "/home/user/repo2" {
+		t.Errorf("Expected dir '/home/user/repo2', got '%s'", rules[1].Dir)
 	}
 }
 
@@ -186,12 +196,14 @@ func TestFindMatchingRule(t *testing.T) {
 			Repo:     "owner/repo1",
 			Branch:   "refs/heads/main",
 			Type:     "git-webhook",
+			Dir:      "/home/user/repo1",
 			Commands: []string{"make build"},
 		},
 		{
 			Repo:     "owner/repo2",
 			Branch:   "refs/heads/develop",
 			Type:     "git-webhook",
+			Dir:      "/home/user/repo2",
 			Commands: []string{"npm test"},
 		},
 	}
@@ -228,6 +240,7 @@ func TestHandleWebhookMessage(t *testing.T) {
 			Repo:     "owner/test-repo",
 			Branch:   "refs/heads/main",
 			Type:     "git-webhook",
+			Dir:      "/home/user/test-repo",
 			Commands: []string{"make build"},
 		},
 	}
@@ -297,6 +310,7 @@ func TestHandleWebhookMessage_Integration(t *testing.T) {
 			Repo:     "owner/test-repo",
 			Branch:   "refs/heads/main",
 			Type:     "git-webhook",
+			Dir:      "/home/user/test-repo",
 			Commands: []string{"make build", "make test"},
 		},
 	}
@@ -334,6 +348,10 @@ func TestHandleWebhookMessage_Integration(t *testing.T) {
 
 	if len(pushedRule.Commands) != 2 {
 		t.Errorf("Expected 2 commands, got %d", len(pushedRule.Commands))
+	}
+
+	if pushedRule.Dir != "/home/user/test-repo" {
+		t.Errorf("Expected dir '/home/user/test-repo', got '%s'", pushedRule.Dir)
 	}
 }
 
