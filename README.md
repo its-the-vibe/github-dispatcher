@@ -30,6 +30,7 @@ The service is configured using environment variables:
 |----------|-------------|---------|
 | `REDIS_HOST` | Redis server hostname | `localhost` |
 | `REDIS_PORT` | Redis server port | `6379` |
+| `REDIS_PASSWORD` | Redis server password (optional) | *(empty)* |
 | `REDIS_CHANNEL` | Redis pubsub channel to subscribe to | `github-webhook-push` |
 | `CONFIG_FILE_PATH` | Path to the filter configuration JSON file | `config.json` |
 | `PIPELINE_QUEUE_NAME` | Redis queue name for pushing matched configurations | `pipeline` |

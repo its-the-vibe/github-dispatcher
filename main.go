@@ -15,6 +15,7 @@ import (
 type Config struct {
 	RedisHost         string
 	RedisPort         string
+	RedisPassword     string
 	RedisChannel      string
 	ConfigFilePath    string
 	PipelineQueueName string
@@ -51,6 +52,7 @@ func loadConfig() Config {
 	return Config{
 		RedisHost:         getEnv("REDIS_HOST", "localhost"),
 		RedisPort:         getEnv("REDIS_PORT", "6379"),
+		RedisPassword:     getEnv("REDIS_PASSWORD", ""),
 		RedisChannel:      getEnv("REDIS_CHANNEL", "github-webhook-push"),
 		ConfigFilePath:    getEnv("CONFIG_FILE_PATH", "config.json"),
 		PipelineQueueName: getEnv("PIPELINE_QUEUE_NAME", "pipeline"),
@@ -175,7 +177,8 @@ func main() {
 
 	// Create Redis client
 	rdb := redis.NewClient(&redis.Options{
-		Addr: fmt.Sprintf("%s:%s", config.RedisHost, config.RedisPort),
+		Addr:     fmt.Sprintf("%s:%s", config.RedisHost, config.RedisPort),
+		Password: config.RedisPassword,
 	})
 	defer rdb.Close()
 
