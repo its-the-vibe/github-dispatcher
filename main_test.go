@@ -248,6 +248,7 @@ func TestHandleWebhookMessage(t *testing.T) {
 	// Test valid webhook payload
 	payload := `{
 		"ref": "refs/heads/main",
+		"after": "66978703a4cd8d23e8dade6b4104cdfc98582128",
 		"repository": {
 			"full_name": "owner/test-repo"
 		}
@@ -260,6 +261,10 @@ func TestHandleWebhookMessage(t *testing.T) {
 
 	if event.Ref != "refs/heads/main" {
 		t.Errorf("Expected ref 'refs/heads/main', got '%s'", event.Ref)
+	}
+
+	if event.After != "66978703a4cd8d23e8dade6b4104cdfc98582128" {
+		t.Errorf("Expected after '66978703a4cd8d23e8dade6b4104cdfc98582128', got '%s'", event.After)
 	}
 
 	if event.Repository.FullName != "owner/test-repo" {
@@ -317,6 +322,7 @@ func TestHandleWebhookMessage_Integration(t *testing.T) {
 
 	payload := `{
 		"ref": "refs/heads/main",
+		"after": "66978703a4cd8d23e8dade6b4104cdfc98582128",
 		"repository": {
 			"full_name": "owner/test-repo"
 		}
@@ -352,6 +358,18 @@ func TestHandleWebhookMessage_Integration(t *testing.T) {
 
 	if pushedRule.Dir != "/home/user/test-repo" {
 		t.Errorf("Expected dir '/home/user/test-repo', got '%s'", pushedRule.Dir)
+	}
+
+	// Verify metadata contains git-commit-sha
+	if pushedRule.Metadata == nil {
+		t.Error("Expected metadata to be present, got nil")
+	} else {
+		commitSha, exists := pushedRule.Metadata["git-commit-sha"]
+		if !exists {
+			t.Error("Expected metadata to contain 'git-commit-sha' key")
+		} else if commitSha != "66978703a4cd8d23e8dade6b4104cdfc98582128" {
+			t.Errorf("Expected git-commit-sha '66978703a4cd8d23e8dade6b4104cdfc98582128', got '%s'", commitSha)
+		}
 	}
 }
 
