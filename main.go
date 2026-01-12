@@ -34,15 +34,17 @@ const (
 var currentLogLevel LogLevel = LogLevelInfo
 
 type FilterRule struct {
-	Repo     string   `json:"repo"`
-	Branch   string   `json:"branch"`
-	Type     string   `json:"type"`
-	Dir      string   `json:"dir"`
-	Commands []string `json:"commands"`
+	Repo     string            `json:"repo"`
+	Branch   string            `json:"branch"`
+	Type     string            `json:"type"`
+	Dir      string            `json:"dir"`
+	Commands []string          `json:"commands"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
 type GitHubPushEvent struct {
 	Ref        string `json:"ref"`
+	After      string `json:"after"`
 	Repository struct {
 		FullName string `json:"full_name"`
 	} `json:"repository"`
@@ -145,8 +147,15 @@ func handleWebhookMessage(ctx context.Context, rdb *redis.Client, queueName stri
 
 	logDebug("Found matching rule for repo: %s, ref: %s", rule.Repo, rule.Branch)
 
+	// Create a copy of the rule with metadata
+	ruleWithMetadata := *rule
+	if ruleWithMetadata.Metadata == nil {
+		ruleWithMetadata.Metadata = make(map[string]string)
+	}
+	ruleWithMetadata.Metadata["git-commit-sha"] = event.After
+
 	// Serialize the matched rule to JSON
-	ruleJSON, err := json.Marshal(rule)
+	ruleJSON, err := json.Marshal(ruleWithMetadata)
 	if err != nil {
 		return fmt.Errorf("failed to serialize rule: %w", err)
 	}
