@@ -305,7 +305,7 @@ func TestHandleWebhookMessage_Integration(t *testing.T) {
 
 	// Use a unique queue name for this test to avoid conflicts
 	queueName := "test-pipeline"
-	
+
 	// Clean up before test
 	rdb.Del(ctx, queueName)
 	defer rdb.Del(ctx, queueName)
@@ -360,15 +360,15 @@ func TestHandleWebhookMessage_Integration(t *testing.T) {
 		t.Errorf("Expected dir '/home/user/test-repo', got '%s'", pushedRule.Dir)
 	}
 
-	// Verify metadata contains git-commit-sha
+	// Verify metadata contains git_commit_sha
 	if pushedRule.Metadata == nil {
 		t.Error("Expected metadata to be present, got nil")
 	} else {
-		commitSha, exists := pushedRule.Metadata["git-commit-sha"]
+		commitSha, exists := pushedRule.Metadata["git_commit_sha"]
 		if !exists {
-			t.Error("Expected metadata to contain 'git-commit-sha' key")
+			t.Error("Expected metadata to contain 'git_commit_sha' key")
 		} else if commitSha != "66978703a4cd8d23e8dade6b4104cdfc98582128" {
-			t.Errorf("Expected git-commit-sha '66978703a4cd8d23e8dade6b4104cdfc98582128', got '%s'", commitSha)
+			t.Errorf("Expected git_commit_sha '66978703a4cd8d23e8dade6b4104cdfc98582128', got '%s'", commitSha)
 		}
 	}
 }
@@ -384,7 +384,7 @@ func TestParseLogLevel(t *testing.T) {
 		{"WARNING", LogLevelWarn},
 		{"ERROR", LogLevelError},
 		{"invalid", LogLevelInfo}, // default to INFO
-		{"", LogLevelInfo},         // default to INFO
+		{"", LogLevelInfo},        // default to INFO
 	}
 
 	for _, tt := range tests {

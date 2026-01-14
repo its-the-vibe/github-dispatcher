@@ -31,6 +31,8 @@ const (
 	LogLevelError
 )
 
+const gitCommitSHAKey = "git_commit_sha"
+
 var currentLogLevel LogLevel = LogLevelInfo
 
 type FilterRule struct {
@@ -152,7 +154,8 @@ func handleWebhookMessage(ctx context.Context, rdb *redis.Client, queueName stri
 	if ruleWithMetadata.Metadata == nil {
 		ruleWithMetadata.Metadata = make(map[string]string)
 	}
-	ruleWithMetadata.Metadata["git-commit-sha"] = event.After
+
+	ruleWithMetadata.Metadata[gitCommitSHAKey] = event.After
 
 	// Serialize the matched rule to JSON
 	ruleJSON, err := json.Marshal(ruleWithMetadata)
