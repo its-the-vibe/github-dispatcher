@@ -1,7 +1,7 @@
 name: Update Go Version
 on:
   schedule:
-    - cron: '0 0 * * 2' # Runs every Tuesday
+    - cron: '0 0 * * 3' # Runs every Wednesday
   workflow_dispatch:
 
 permissions:
