@@ -1,6 +1,8 @@
 module github.com/its-the-vibe/github-dispatcher
 
-go 1.25.5
+go 1.25
+
+toolchain go1.25.5
 
 require github.com/redis/go-redis/v9 v9.17.3
 
