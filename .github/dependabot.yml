@@ -11,5 +11,4 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     ignore:
-      - dependency-name: "golang"
-        versions: ["rc"]
+      - dependency-name: "*rc*"
