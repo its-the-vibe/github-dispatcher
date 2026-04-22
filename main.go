@@ -57,7 +57,7 @@ func loadConfig() Config {
 		RedisHost:         getEnv("REDIS_HOST", "localhost"),
 		RedisPort:         getEnv("REDIS_PORT", "6379"),
 		RedisPassword:     getEnv("REDIS_PASSWORD", ""),
-		RedisChannel:      getEnv("REDIS_CHANNEL", "github-webhooks"),
+		RedisChannel:      getEnv("REDIS_CHANNEL", "github-webhook-push"),
 		ConfigFilePath:    getEnv("CONFIG_FILE_PATH", "config.json"),
 		PipelineQueueName: getEnv("PIPELINE_QUEUE_NAME", "pipeline"),
 		LogLevel:          getEnv("LOG_LEVEL", "INFO"),
