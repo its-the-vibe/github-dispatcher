@@ -28,8 +28,8 @@ func TestLoadConfig_Defaults(t *testing.T) {
 		t.Errorf("Expected RedisPort to be '6379', got '%s'", config.RedisPort)
 	}
 
-	if config.RedisChannel != "github-webhooks" {
-		t.Errorf("Expected RedisChannel to be 'github-webhooks', got '%s'", config.RedisChannel)
+	if config.RedisChannel != "github-webhook-push" {
+		t.Errorf("Expected RedisChannel to be 'github-webhook-push', got '%s'", config.RedisChannel)
 	}
 
 	if config.ConfigFilePath != "config.json" {
