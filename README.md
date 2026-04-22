@@ -1,5 +1,7 @@
 # github-dispatcher
 
+[![CI](https://github.com/its-the-vibe/github-dispatcher/actions/workflows/ci.yaml/badge.svg)](https://github.com/its-the-vibe/github-dispatcher/actions/workflows/ci.yaml)
+
 A service which receives a github webhook notification from a redis pubsub channel and dispatches CI/CD operations.
 
 ## Overview
@@ -138,6 +140,11 @@ To test the service with a GitHub push webhook, publish a message to the Redis c
 ### Running Unit Tests
 
 ```bash
+make test
+```
+
+To run all tests including integration tests (requires Redis):
+```bash
 go test ./... -v
 ```
 
@@ -151,14 +158,24 @@ go test ./... -v -short
 ### Building
 
 ```bash
-go build -o github-dispatcher .
+make build
 ```
 
 ### Running Tests
 
 ```bash
-go test ./...
+make test
 ```
+
+### Linting
+
+```bash
+make lint
+```
+
+### CI Workflow
+
+A GitHub Actions workflow at `.github/workflows/ci.yaml` runs automatically on every push and pull request. It installs dependencies, runs `make test`, and `make lint` to ensure all tests pass and the code is clean.
 
 ## Architecture
 
