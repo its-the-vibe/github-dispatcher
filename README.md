@@ -1,5 +1,7 @@
 # github-dispatcher
 
+[![CI](https://github.com/its-the-vibe/github-dispatcher/actions/workflows/ci.yaml/badge.svg)](https://github.com/its-the-vibe/github-dispatcher/actions/workflows/ci.yaml)
+
 A service which receives a github webhook notification from a redis pubsub channel and dispatches CI/CD operations.
 
 ## Overview
@@ -31,7 +33,7 @@ The service is configured using environment variables:
 | `REDIS_HOST` | Redis server hostname | `localhost` |
 | `REDIS_PORT` | Redis server port | `6379` |
 | `REDIS_PASSWORD` | Redis server password (optional) | *(empty)* |
-| `REDIS_CHANNEL` | Redis pubsub channel to subscribe to | `github-webhook-push` |
+| `REDIS_CHANNEL` | Redis pubsub channel to subscribe to | `github-webhooks` |
 | `CONFIG_FILE_PATH` | Path to the filter configuration JSON file | `config.json` |
 | `PIPELINE_QUEUE_NAME` | Redis queue name for pushing matched configurations | `pipeline` |
 | `LOG_LEVEL` | Log level (DEBUG, INFO, WARN, ERROR) | `INFO` |
@@ -138,6 +140,11 @@ To test the service with a GitHub push webhook, publish a message to the Redis c
 ### Running Unit Tests
 
 ```bash
+make test
+```
+
+To run all tests including integration tests (requires Redis):
+```bash
 go test ./... -v
 ```
 
@@ -151,14 +158,24 @@ go test ./... -v -short
 ### Building
 
 ```bash
-go build -o github-dispatcher .
+make build
 ```
 
 ### Running Tests
 
 ```bash
-go test ./...
+make test
 ```
+
+### Linting
+
+```bash
+make lint
+```
+
+### CI Workflow
+
+A GitHub Actions workflow at `.github/workflows/ci.yaml` runs automatically on every push and pull request. It installs dependencies, runs `make test`, and `make lint` to ensure all tests pass and the code is clean.
 
 ## Architecture
 
