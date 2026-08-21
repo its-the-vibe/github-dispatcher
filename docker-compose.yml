@@ -1,6 +1,8 @@
 services:
   dispatcher:
     build: .
+    image: ghcr.io/its-the-vibe/github-dispatcher:latest
+    pull_policy: always
     read_only: true
     extra_hosts:
       - "host.docker.internal:host-gateway"
