@@ -12,6 +12,7 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-}
       - REDIS_CHANNEL=${REDIS_CHANNEL:-github-webhook-push}
       - PIPELINE_QUEUE_NAME=${PIPELINE_QUEUE_NAME:-poppit:build-commands}
+      - CONFIG_FILE_PATH=${CONFIG_FILE_PATH:-/app/config.json}
     restart: on-failure:10
     volumes:
       - ./config.json:/app/config.json:ro

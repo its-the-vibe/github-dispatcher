@@ -1,5 +1,8 @@
 # Build stage
-FROM golang:1.27.0-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.27.0-alpine AS builder
+
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /build
 
@@ -13,14 +16,16 @@ RUN go mod download
 COPY *.go ./
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -o github-dispatcher .
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o github-dispatcher .
 
 # Runtime stage
-FROM scratch
+FROM gcr.io/distroless/static-debian13:nonroot
 
 WORKDIR /app
 
 # Copy binary from builder
 COPY --from=builder /build/github-dispatcher .
+
+USER nonroot:nonroot
 
 ENTRYPOINT ["./github-dispatcher"]
